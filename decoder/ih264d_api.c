@@ -1068,6 +1068,7 @@ void ih264d_init_decoder(void * ps_dec_params)
     ps_dec->i4_max_poc = 0;
     ps_dec->i4_prev_max_display_seq = 0;
     ps_dec->u1_recon_mb_grp = 4;
+    ps_dec->i4_reorder_depth = -1;
 
     /* Field PIC initializations */
     ps_dec->u1_second_field = 0;
@@ -1851,7 +1852,8 @@ WORD32 ih264d_video_decode(iv_obj_t *dec_hdl, void *pv_api_ip, void *pv_api_op)
     ps_dec->u1_pic_decode_done = 0;
 
     ps_dec_op->u4_num_bytes_consumed = 0;
-
+    ps_dec_op->i4_reorder_depth = -1;
+    ps_dec_op->i4_display_index = DEFAULT_POC;
     ps_dec->ps_out_buffer = NULL;
 
     if(ps_dec_ip->u4_size
@@ -2040,6 +2042,8 @@ WORD32 ih264d_video_decode(iv_obj_t *dec_hdl, void *pv_api_ip, void *pv_api_op)
 
         ps_dec_op->u4_pic_wd = (UWORD32)ps_dec->u2_disp_width;
         ps_dec_op->u4_pic_ht = (UWORD32)ps_dec->u2_disp_height;
+        ps_dec_op->i4_reorder_depth = ps_dec->i4_reorder_depth;
+        ps_dec_op->i4_display_index = ps_dec->i4_display_index;
 
         ps_dec_op->u4_new_seq = 0;
 
@@ -2358,6 +2362,7 @@ WORD32 ih264d_video_decode(iv_obj_t *dec_hdl, void *pv_api_ip, void *pv_api_op)
     {
         ps_dec_op->u4_pic_wd = (UWORD32)ps_dec->u2_disp_width;
         ps_dec_op->u4_pic_ht = (UWORD32)ps_dec->u2_disp_height;
+        ps_dec_op->i4_reorder_depth = ps_dec->i4_reorder_depth;
     }
 
 //Report if header (sps and pps) has not been decoded yet
@@ -3666,6 +3671,8 @@ void ih264d_fill_output_struct_from_context(dec_struct_t *ps_dec,
         ps_dec_op->u4_pic_wd = (UWORD32)ps_dec->u2_disp_width;
         ps_dec_op->u4_pic_ht = (UWORD32)ps_dec->u2_disp_height;
     }
+    ps_dec_op->i4_reorder_depth = ps_dec->i4_reorder_depth;
+    ps_dec_op->i4_display_index = ps_dec->i4_display_index;
     ps_dec_op->e_pic_type = ps_dec->i4_frametype;
 
     ps_dec_op->u4_new_seq = 0;
